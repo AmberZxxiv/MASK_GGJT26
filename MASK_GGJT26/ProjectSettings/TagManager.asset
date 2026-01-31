@@ -8,8 +8,7 @@ TagManager:
   - container
   - cage
   - itemholder
-  - glass
-  - gem
+  - collectable
   layers:
   - Default
   - TransparentFX

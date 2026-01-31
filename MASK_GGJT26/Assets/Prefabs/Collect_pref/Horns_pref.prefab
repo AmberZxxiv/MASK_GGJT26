@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3406230110166099100}
   - component: {fileID: 1201321305549408548}
   m_Layer: 0
-  m_Name: Gem_pref
+  m_Name: Horns_pref
   m_TagString: collectable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c7b181504b4620c4fab900c114cc30db, type: 2}
+  - {fileID: 2100000, guid: 54156a37334552146af7c97e86aa222b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

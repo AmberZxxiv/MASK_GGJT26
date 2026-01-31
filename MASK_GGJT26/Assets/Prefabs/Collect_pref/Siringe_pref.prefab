@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 3406230110166099100}
   - component: {fileID: 1201321305549408548}
   m_Layer: 0
-  m_Name: Glass_pref
-  m_TagString: glass
+  m_Name: Siringe_pref
+  m_TagString: collectable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 875b4ba58316e6d428c213452ba3fe5e, type: 2}
+  - {fileID: 2100000, guid: 72d5de75fcdf41a48b1deca6d4bdcf16, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

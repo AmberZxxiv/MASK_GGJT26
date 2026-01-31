@@ -36,7 +36,7 @@ public class Alien_Controler : MonoBehaviour
         {
             case AlienType.PichoAlien: yOffset = 2.5f; break;
             case AlienType.EyeAlien: yOffset = 1.5f; break;
-            case AlienType.SullyAlien: yOffset = 2f; break;
+            case AlienType.SullyAlien: yOffset = 2.4f; break;
         }
 
         if (route.Length > 0)

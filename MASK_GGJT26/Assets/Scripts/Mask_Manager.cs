@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering.PostProcessing;
+
 
 public class Mask_Manager : MonoBehaviour
 {// script en EMPTY MASK_MAN
@@ -33,9 +35,9 @@ public class Mask_Manager : MonoBehaviour
     #endregion
 
     #region /// POSTPOS ///
-    public GameObject postPoPicho;
-    public GameObject postPoEye;
-    public GameObject postPoSully;
+    public PostProcessVolume postPoPicho;
+    public PostProcessVolume postPoEye;
+    public PostProcessVolume postPoSully;
     #endregion
 
 
@@ -63,91 +65,72 @@ public class Mask_Manager : MonoBehaviour
 
     void Update()
     {
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0f)
-        {
-            _currentMask = (_currentMask + 1) % totalMasks;
-            SwitchMask();
-        }
-        else if (scroll < 0f)
-        {
-            _currentMask--;
-            if (_currentMask < 0) _currentMask = totalMasks - 1;
-            SwitchMask();
-        }
+        HandleScroll();
         UpdateMaskState();
+        UpdatePostProcessing();
+    }
+    void HandleScroll()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+
+        if (scroll > 0f)
+        _currentMask = (_currentMask + 1) % totalMasks;
+        else if (scroll < 0f)
+        _currentMask = (_currentMask - 1 + totalMasks) % totalMasks;
+        else return;
+
+        SwitchMask();
     }
     public void SwitchMask()
     {
         float targetAngle = _currentMask * _angleMask;
         maskSelector.rectTransform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
-        EquipMask(_currentMask);
-    }
-    void EquipMask(int index)
-    {
-        maskType = (MaskType)index;
-        Debug.Log("Máscara equipada: " + maskType);
-        EquipPostPos();
+        maskType = (MaskType)_currentMask;
     }
     void UpdateMaskState()
     {
         float percent = GetBatteryPercent();
 
-        MaskState newState;
+        if (percent <= offThreshold)
+        maskState = MaskState.Off;
+        else if (percent <= lowThreshold)
+        maskState = MaskState.Low;
+        else
+        maskState = MaskState.Strong;
+    }
+    float GetPostProcessWeight()
+    {
+        float percent = GetBatteryPercent();
 
         if (percent <= offThreshold)
-            newState = MaskState.Off;
-        else if (percent <= lowThreshold)
-            newState = MaskState.Low;
-        else
-            newState = MaskState.Strong;
+            return 0f;
 
-        if (newState != maskState)
-        {
-            maskState = newState;
-            OnMaskStateChanged();
-        }
+        if (percent <= lowThreshold)
+            return Mathf.InverseLerp(offThreshold, lowThreshold, percent);
+
+        return 1f;
     }
-    void OnMaskStateChanged()
+    void UpdatePostProcessing()
     {
-        Debug.Log($"Mask {maskType} ahora está en estado {maskState}");
+        float weight = GetPostProcessWeight();
 
-        switch (maskState)
-        {
-            case MaskState.Strong:
-                // comportamiento normal
-                break;
+        postPoPicho.weight = 0f;
+        postPoEye.weight = 0f;
+        postPoSully.weight = 0f;
 
-            case MaskState.Low:
-                // efectos reducidos
-                break;
+        if (maskState == MaskState.Off)
+            return;
 
-            case MaskState.Off:
-                // máscara inútil / penalizaciones
-                break;
-        }
-    }
-    void EquipPostPos()
-    {
-        postPoPicho.SetActive(false);
-        postPoEye.SetActive(false);
-        postPoSully.SetActive(false);
-        if (maskState == MaskState.Off) return;
         switch (maskType)
         {
-            case MaskType.HumanMask:
-                postPoPicho.SetActive(false);
-                postPoEye.SetActive(false);
-                postPoSully.SetActive(false);
-                break;
             case MaskType.PichoMask:
-                postPoPicho.SetActive(true);
+                postPoPicho.weight = weight;
                 break;
             case MaskType.EyeMask:
-                postPoEye.SetActive(true);
+                postPoEye.weight = weight;
                 break;
             case MaskType.SullyMask:
-                postPoSully.SetActive(true);
+                postPoSully.weight = weight;
                 break;
         }
     }

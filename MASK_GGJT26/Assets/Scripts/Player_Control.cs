@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
+using UnityEditorInternal.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ public class Player_Control : MonoBehaviour
  // SINGLETON script
     public static Player_Control instance;
     public Mask_Manager _MM; //pillo SINGLE del MM
+    public Loot_Control _LC; //pillo SINGLE del LC
 
     #region /// MOVIMIENTO ///
     Camera _camera;
@@ -27,6 +29,7 @@ public class Player_Control : MonoBehaviour
     public float currentEnergy;
     public float drainRate;
     public float chargeRate;
+    public float humanMaskCharge;
     public GameObject containHideout;
     public bool isHidout;
     #endregion
@@ -40,6 +43,7 @@ public class Player_Control : MonoBehaviour
     void Start()
     {
         _MM = Mask_Manager.instance;
+        _LC = Loot_Control.instance;
         _camera = Camera.main;
         isHidout = false;
         currentEnergy = maxEnergy;
@@ -65,12 +69,29 @@ public class Player_Control : MonoBehaviour
                     containHideout.SetActive(true);
                     isHidout = true;
                 }
+
+                if (hit.collider.CompareTag("collectable"))
+                {
+                    Loot_Item loot = hit.collider.GetComponent<Loot_Item>();
+                    if (loot != null)
+                    {
+                        Loot_Control.instance.CollectItem(loot.index, hit.collider.gameObject);
+                    }
+                }
             }
         }
 
-        //Controlador de la energía
-        if (!isHidout) currentEnergy -= drainRate * Time.deltaTime;
-        else currentEnergy += chargeRate * Time.deltaTime;
+        float energyDelta = 0f;
+        // Drenaje base (siempre)
+        energyDelta -= drainRate;
+        // Recarga por container
+        if (isHidout)
+            energyDelta += chargeRate;
+        // Recarga por máscara humana
+        if (_MM.maskType == Mask_Manager.MaskType.HumanMask)
+            energyDelta += chargeRate * humanMaskCharge;
+        // Aplicar
+        currentEnergy += energyDelta * Time.deltaTime;
         currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
         baterySlider.value = currentEnergy;
 
