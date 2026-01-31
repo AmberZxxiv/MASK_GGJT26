@@ -22,13 +22,13 @@ public class Alien_Controler : MonoBehaviour
     #region /// DIRECCION ///
     int _direction = 1;
     private float yOffset;
-    public Sprite backwardsSprite;
-    public Sprite frontalSprite;
     private SpriteRenderer spriteRenderer;
+    Animator _animator;
     #endregion
 
     void Start()
     {
+        _animator = GetComponent<Animator>();
         _MM = Mask_Manager.instance;
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -60,8 +60,7 @@ public class Alien_Controler : MonoBehaviour
         Vector3 targetPos = target.position;
         targetPos.y += yOffset; // ajustamos la altura para los pies
 
-        transform.position = Vector3.MoveTowards
-        (transform.position,targetPos,speed * Time.deltaTime );
+        transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
 
         // Comprobamos si llegamos al punto
         if (Vector3.Distance(transform.position, targetPos) <= minDistance)
@@ -73,21 +72,16 @@ public class Alien_Controler : MonoBehaviour
             if (_currentPoint >= route.Length)
             {
                 _currentPoint = route.Length - 2; // Retrocedemos al penúltimo
-                _direction = -1;
+                _direction = -1; // Cambiar dirección a retroceder
             }
             else if (_currentPoint < 0)
             {
                 _currentPoint = 1; // Avanzamos al segundo
-                _direction = 1;
+                _direction = 1; // Cambiar dirección a avanzar
             }
-            if (_direction > 0) // Avanzando por la ruta (hacia “adelante”)
-            {
-                spriteRenderer.sprite = backwardsSprite;
-            }
-            else if (_direction < 0) // Retrocediendo (hacia “atrás”)
-            {
-                spriteRenderer.sprite = frontalSprite;
-            }
+
+            // Cambiar el parámetro "IsMovingBackward" según la dirección
+            _animator.SetBool("Espaldas", _direction < 0);  // Si es negativo, es retrocediendo
         }
     }
 }

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 935753293570866582}
   - component: {fileID: 4504121564367475247}
   - component: {fileID: 5084592242547228877}
+  - component: {fileID: 8693293014202682244}
   m_Layer: 8
   m_Name: Picho_pref
   m_TagString: Untagged
@@ -129,3 +130,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.2, y: 5.4, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &8693293014202682244
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859958292145477455}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2b6a8cb682dfee74e887e97decc5742a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
