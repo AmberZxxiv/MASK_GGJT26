@@ -34,6 +34,16 @@ public class Player_Control : MonoBehaviour
     public bool isHidout;
     #endregion
 
+    #region /// DETECTION ///
+    public Slider detectionSlider;
+    public float susMax;
+    public float susLevel;
+    public float susRate;
+    public float drainDetection;
+    public float detectDistance;
+    public LayerMask alienLayer;
+    #endregion
+
     void Awake()// singleton sin superponer
     {
         if (instance == null) { instance = this; }
@@ -49,6 +59,8 @@ public class Player_Control : MonoBehaviour
         currentEnergy = maxEnergy;
         baterySlider.maxValue = maxEnergy;
         baterySlider.value = currentEnergy;
+        detectionSlider.maxValue = susMax;
+        detectionSlider.value = susLevel;
     }
 
     void Update()
@@ -81,6 +93,7 @@ public class Player_Control : MonoBehaviour
             }
         }
 
+        DetectAliens();
         float energyDelta = 0f;
         // Drenaje base (siempre)
         energyDelta -= drainRate;
@@ -128,6 +141,63 @@ public class Player_Control : MonoBehaviour
         }
     }
 
+    public bool IsMaskedCorrectly(Alien_Controler.AlienType alienType)
+    {
+        switch (alienType)
+        {
+            case Alien_Controler.AlienType.PichoAlien:
+                return _MM.maskType == Mask_Manager.MaskType.PichoMask;
+            case Alien_Controler.AlienType.EyeAlien:
+                return _MM.maskType == Mask_Manager.MaskType.EyeMask;
+            case Alien_Controler.AlienType.SullyAlien:
+                return _MM.maskType == Mask_Manager.MaskType.SullyMask;
+            default:
+                return false;
+        }
+    }
+    void DetectAliens()
+    {
+        bool detected = false;
+
+        Vector3 boxCenter = transform.position + transform.forward * (detectDistance / 2) + Vector3.up * 1f;
+        Vector3 boxHalfExtents = new Vector3(4f, 2f, detectDistance / 2); // ancho=4, alto=2, largo=detectDistance
+        Quaternion boxRotation = transform.rotation;
+
+        // DEBUG: dibujar la caja
+        DebugDrawBox(boxCenter, boxHalfExtents, boxRotation, Color.green);
+
+        Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, boxRotation, alienLayer);
+        foreach (Collider hit in hits)
+        {
+            Alien_Controler alien = hit.GetComponent<Alien_Controler>();
+            if (alien != null)
+            {
+                Debug.Log("Alien detectado: " + alien.name);
+                if (!IsMaskedCorrectly(alien.alienType))
+                {
+                    susLevel += susRate * Time.deltaTime;
+                    detected = true;
+                }
+            }
+        }
+
+        // Decay de sospecha
+        if (!detected && susLevel > 0f)
+            susLevel -= drainDetection * Time.deltaTime;
+
+        susLevel = Mathf.Clamp(susLevel, 0, susMax);
+        detectionSlider.value = susLevel;
+
+        if (susLevel >= susMax) AlertAliens();
+    }
+
+
+    void AlertAliens()
+    {
+        Debug.Log("¡Has sido descubierto por los aliens!");
+        // Aquí puedes disparar eventos globales de alarma o cambiar comportamiento de enemigos
+    }
+
     public void ExitContainer()
     {
         containHideout.SetActive(false);
@@ -142,5 +212,38 @@ public class Player_Control : MonoBehaviour
     public void GenerateList()
     {
         print("Phone Picked");
+    }
+
+    void DebugDrawBox(Vector3 center, Vector3 halfExtents, Quaternion rotation, Color color)
+    {
+        Vector3 c = center;
+        Vector3 he = halfExtents;
+
+        Vector3[] points = new Vector3[8];
+        points[0] = c + rotation * new Vector3(-he.x, -he.y, -he.z);
+        points[1] = c + rotation * new Vector3(he.x, -he.y, -he.z);
+        points[2] = c + rotation * new Vector3(he.x, -he.y, he.z);
+        points[3] = c + rotation * new Vector3(-he.x, -he.y, he.z);
+
+        points[4] = c + rotation * new Vector3(-he.x, he.y, -he.z);
+        points[5] = c + rotation * new Vector3(he.x, he.y, -he.z);
+        points[6] = c + rotation * new Vector3(he.x, he.y, he.z);
+        points[7] = c + rotation * new Vector3(-he.x, he.y, he.z);
+
+        // Dibujar líneas de abajo
+        Debug.DrawLine(points[0], points[1], color);
+        Debug.DrawLine(points[1], points[2], color);
+        Debug.DrawLine(points[2], points[3], color);
+        Debug.DrawLine(points[3], points[0], color);
+
+        // Dibujar líneas de arriba
+        Debug.DrawLine(points[4], points[5], color);
+        Debug.DrawLine(points[5], points[6], color);
+        Debug.DrawLine(points[6], points[7], color);
+        Debug.DrawLine(points[7], points[4], color);
+
+        // Conectar arriba y abajo
+        for (int i = 0; i < 4; i++)
+            Debug.DrawLine(points[i], points[i + 4], color);
     }
 }

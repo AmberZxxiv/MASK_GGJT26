@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 5002650743772611851}
   - component: {fileID: 6683791854847735508}
   - component: {fileID: 3038772804005996872}
-  m_Layer: 0
+  - component: {fileID: 2020384167122646671}
+  m_Layer: 8
   m_Name: Eye_pref
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,3 +108,24 @@ MonoBehaviour:
   minDistance: 0.2
   backwardsSprite: {fileID: 1288267326, guid: e72c7e4da8d7d584d82f2b7b44b4499d, type: 3}
   frontalSprite: {fileID: -891121719, guid: e72c7e4da8d7d584d82f2b7b44b4499d, type: 3}
+--- !u!65 &2020384167122646671
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809349360161113207}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.09, y: 4.41, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}

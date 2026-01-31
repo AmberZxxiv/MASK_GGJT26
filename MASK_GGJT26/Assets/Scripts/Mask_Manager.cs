@@ -30,7 +30,7 @@ public class Mask_Manager : MonoBehaviour
     #region /// SELECTOR ///
     public Image maskSelector;
     public int totalMasks;
-    int _currentMask;
+    public int currentMask;
     float _angleMask;
     #endregion
 
@@ -74,18 +74,18 @@ public class Mask_Manager : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (scroll > 0f)
-        _currentMask = (_currentMask + 1) % totalMasks;
+        currentMask = (currentMask + 1) % totalMasks;
         else if (scroll < 0f)
-        _currentMask = (_currentMask - 1 + totalMasks) % totalMasks;
+        currentMask = (currentMask - 1 + totalMasks) % totalMasks;
         else return;
 
         SwitchMask();
     }
     public void SwitchMask()
     {
-        float targetAngle = _currentMask * _angleMask;
+        float targetAngle = currentMask * _angleMask;
         maskSelector.rectTransform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
-        maskType = (MaskType)_currentMask;
+        maskType = (MaskType)currentMask;
     }
     void UpdateMaskState()
     {

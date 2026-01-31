@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 3026109432420680597}
   - component: {fileID: 935753293570866582}
   - component: {fileID: 4504121564367475247}
-  m_Layer: 0
+  - component: {fileID: 5084592242547228877}
+  m_Layer: 8
   m_Name: Picho_pref
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,3 +108,24 @@ MonoBehaviour:
   minDistance: 0.2
   backwardsSprite: {fileID: 432676442, guid: 78aab6d6f2260164b8a2b2321286b027, type: 3}
   frontalSprite: {fileID: -1983605170, guid: 78aab6d6f2260164b8a2b2321286b027, type: 3}
+--- !u!65 &5084592242547228877
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859958292145477455}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.2, y: 5.4, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
