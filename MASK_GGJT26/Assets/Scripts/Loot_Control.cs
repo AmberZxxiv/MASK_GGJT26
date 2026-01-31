@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,12 +17,12 @@ public class Loot_Control : MonoBehaviour
     public Sprite collectedItem;
     public int collectedCount;
     public bool allCollected = false;
-    public Transform[] lootSpawns;
+    public GameObject[] zoneSpawns;
     public int itemsCounter;
 
     private List<int> selectedIndexes = new List<int>(); // índices de los objetos seleccionados
-    private List<GameObject> spawnedItems = new List<GameObject>();
-
+    private Dictionary<GameObject, List<GameObject>> spawnedByZone =
+        new Dictionary<GameObject, List<GameObject>>();
 
     void Awake()// singleton sin superponer
     {
@@ -39,7 +40,12 @@ public class Loot_Control : MonoBehaviour
             CheckVictory();
         }
     }
-
+    Transform[] GetSpawnsFromZone(GameObject zone)
+    {
+        return zone.GetComponentsInChildren<Transform>(false)
+                   .Where(t => t.CompareTag("LootSpawn"))
+                   .ToArray();
+    }
     public void SelectRandomItems()
     {
         selectedIndexes.Clear();
@@ -88,20 +94,39 @@ public class Loot_Control : MonoBehaviour
 
     void SpawnItems()
     {
-        List<int> usedSpawns = new List<int>();
+        int[] indexesArray = selectedIndexes.ToArray();
 
-        for (int i = 0; i < selectedIndexes.Count; i++)
+        foreach (GameObject zone in zoneSpawns)
         {
-            int spawnIndex;
-            do spawnIndex = Random.Range(0, lootSpawns.Length);
-            while (usedSpawns.Contains(spawnIndex));
+            Transform[] zoneSpawns = GetSpawnsFromZone(zone);
+            List<int> usedSpawns = new List<int>();
 
-            usedSpawns.Add(spawnIndex);
+            if (!spawnedByZone.ContainsKey(zone))
+                spawnedByZone.Add(zone, new List<GameObject>());
+            else
+                spawnedByZone[zone].Clear();
 
-            GameObject spawned = Instantiate(collectPrefab[selectedIndexes[i]], lootSpawns[spawnIndex].position, Quaternion.identity);
-            Loot_Item lootItem = spawned.AddComponent<Loot_Item>();
-            lootItem.index = i; // índice para la UI
-            spawnedItems.Add(spawned);
+            for (int i = 0; i < indexesArray.Length; i++)
+            {
+                if (i >= zoneSpawns.Length) break;
+
+                int spawnIndex;
+                do spawnIndex = Random.Range(0, zoneSpawns.Length);
+                while (usedSpawns.Contains(spawnIndex));
+
+                usedSpawns.Add(spawnIndex);
+
+                GameObject spawned = Instantiate(
+                    collectPrefab[indexesArray[i]],
+                    zoneSpawns[spawnIndex].position,
+                    Quaternion.identity
+                );
+
+                Loot_Item lootItem = spawned.AddComponent<Loot_Item>();
+                lootItem.index = i;
+
+                spawnedByZone[zone].Add(spawned);
+            }
         }
     }
     public void CollectItem(int index, GameObject item)
@@ -110,7 +135,10 @@ public class Loot_Control : MonoBehaviour
         {
             uiSlots[index].sprite = collectedItem;
             collectedCount++;
-            spawnedItems.Remove(item);
+
+            foreach (var zone in spawnedByZone.Values)
+                zone.Remove(item);
+
             Destroy(item);
         }
     }

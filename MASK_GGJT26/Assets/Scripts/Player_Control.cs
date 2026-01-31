@@ -25,6 +25,7 @@ public class Player_Control : MonoBehaviour
     Vector3 camOriginalPos;
     Quaternion camOriginalRot;
     Transform currentContainerPoint;
+    public Transform[] spawnMaps;
     public GameObject shipLobby;
     public GameObject pauseMenu;
     public GameObject victoryMenu;
@@ -283,8 +284,19 @@ public class Player_Control : MonoBehaviour
     }
     public void QuitPause()
     {
-        Time.timeScale = 1;
-        pauseMenu.SetActive(false);
+        if (_LC.listed == true)
+        {
+            if (spawnMaps.Length > 0)
+            {
+                int randomIndex = Random.Range(0, spawnMaps.Length);
+                Transform spawn = spawnMaps[randomIndex];
+                transform.position = spawn.position;
+                transform.rotation = spawn.rotation;
+            }
+
+            Time.timeScale = 1f;
+            shipLobby.SetActive(false);
+        }
     }
     public void GenerateList()      
     { _LC.SelectRandomItems(); }

@@ -9,6 +9,7 @@ TagManager:
   - cage
   - itemholder
   - collectable
+  - LootSpawn
   layers:
   - Default
   - TransparentFX
