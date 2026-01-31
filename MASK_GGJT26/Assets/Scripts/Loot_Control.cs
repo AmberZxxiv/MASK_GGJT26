@@ -6,12 +6,16 @@ public class Loot_Control : MonoBehaviour
 {// script en EMPTY COLECT_LIST
  // SINGLETON script
     public static Loot_Control instance;
+    public Player_Control _PC; //pillo SINGLE del PC
 
     public GameObject[] collectPrefab;
     public Sprite[] collectSprites;
     public Image[] uiSlots;
+    public Image[] shipNotis;
+    public bool listed = false;
     public Sprite collectedItem;
-
+    public int collectedCount;
+    public bool allCollected = false;
     public Transform[] lootSpawns;
     public int itemsCounter;
 
@@ -24,15 +28,19 @@ public class Loot_Control : MonoBehaviour
         if (instance == null) { instance = this; }
         else Destroy(gameObject);
     }
-
     void Start()
     {
-        SelectRandomItems();
-        UpdateUI();
-        SpawnItems();
+        _PC = Player_Control.instance;
+    }
+    void Update()
+    {
+        if (listed && !allCollected)
+        {
+            CheckVictory();
+        }
     }
 
-    void SelectRandomItems()
+    public void SelectRandomItems()
     {
         selectedIndexes.Clear();
         List<int> used = new List<int>();
@@ -46,8 +54,24 @@ public class Loot_Control : MonoBehaviour
                 used.Add(rand);
             }
         }
+        listed = true;
+        UpdateShip();
+        UpdateUI();
+        SpawnItems();
     }
-
+    void UpdateShip()
+    {
+        for (int i = 0; i < shipNotis.Length; i++)
+        {
+            if (i < selectedIndexes.Count)
+            {
+                shipNotis[i].sprite = collectSprites[selectedIndexes[i]];
+                shipNotis[i].color = Color.white; // visible
+                shipNotis[i].rectTransform.sizeDelta = new Vector2(150, 150);
+            }
+            else shipNotis[i].gameObject.SetActive(false);
+        }
+    }
     void UpdateUI()
     {
         for (int i = 0; i < uiSlots.Length; i++)
@@ -58,10 +82,7 @@ public class Loot_Control : MonoBehaviour
                 uiSlots[i].color = Color.white; // visible
                 uiSlots[i].rectTransform.sizeDelta = new Vector2(150, 150);
             }
-            else
-            {
-                uiSlots[i].gameObject.SetActive(false);
-            }
+            else uiSlots[i].gameObject.SetActive(false);
         }
     }
 
@@ -72,10 +93,8 @@ public class Loot_Control : MonoBehaviour
         for (int i = 0; i < selectedIndexes.Count; i++)
         {
             int spawnIndex;
-            do
-            {
-                spawnIndex = Random.Range(0, lootSpawns.Length);
-            } while (usedSpawns.Contains(spawnIndex));
+            do spawnIndex = Random.Range(0, lootSpawns.Length);
+            while (usedSpawns.Contains(spawnIndex));
 
             usedSpawns.Add(spawnIndex);
 
@@ -90,8 +109,16 @@ public class Loot_Control : MonoBehaviour
         if (index >= 0 && index < uiSlots.Length)
         {
             uiSlots[index].sprite = collectedItem;
+            collectedCount++;
             spawnedItems.Remove(item);
             Destroy(item);
+        }
+    }
+    void CheckVictory()
+    {
+        if (collectedCount >= itemsCounter)
+        {
+            allCollected = true;
         }
     }
 }

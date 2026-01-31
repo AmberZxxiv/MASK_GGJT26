@@ -1,7 +1,9 @@
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEditorInternal.VersionControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Player_Control : MonoBehaviour
@@ -20,7 +22,12 @@ public class Player_Control : MonoBehaviour
 
     #region /// INTERACCIONES ///
     public float interactDistance;
+    Vector3 camOriginalPos;
+    Quaternion camOriginalRot;
+    Transform currentContainerPoint;
     public GameObject shipLobby;
+    public GameObject pauseMenu;
+    public GameObject victoryMenu;
     #endregion
 
     #region /// BATERY CHARGE ///
@@ -42,6 +49,7 @@ public class Player_Control : MonoBehaviour
     public float drainDetection;
     public float detectDistance;
     public LayerMask alienLayer;
+    public GameObject alertPanel;
     #endregion
 
     void Awake()// singleton sin superponer
@@ -54,6 +62,8 @@ public class Player_Control : MonoBehaviour
     {
         _MM = Mask_Manager.instance;
         _LC = Loot_Control.instance;
+        Time.timeScale = 0f;
+        shipLobby.SetActive(true);
         _camera = Camera.main;
         isHidout = false;
         currentEnergy = maxEnergy;
@@ -65,7 +75,7 @@ public class Player_Control : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
             Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.green, 0.2f);
@@ -73,13 +83,17 @@ public class Player_Control : MonoBehaviour
             {
                 if (hit.collider.CompareTag("exitdoor"))
                 {
-                   shipLobby.SetActive(true);
+                    if (_LC.allCollected == true)
+                    {
+                        Time.timeScale = 0f;
+                        victoryMenu.SetActive(true);
+                    }
+                    else BackToShip();
                 }
 
                 if (hit.collider.CompareTag("container"))
                 {
-                    containHideout.SetActive(true);
-                    isHidout = true;
+                    EnterContainer(hit.collider.transform);
                 }
 
                 if (hit.collider.CompareTag("collectable"))
@@ -110,35 +124,75 @@ public class Player_Control : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.W))
         {
+            if (isHidout) return;
             Vector3 targetPosition = transform.position + transform.forward * floorDistance;
             Vector3 rayOrigin = targetPosition + Vector3.up * floorHeight;
             Ray groundRay = new Ray(rayOrigin, Vector3.down);
             Debug.DrawRay(rayOrigin, Vector3.down * floorDistance, Color.blue, 0.5f);
             if (Physics.Raycast(groundRay, floorDistance, floorLayer))
             { transform.position = targetPosition; }
-            else Debug.Log("NO HAY SUELO");
+            currentEnergy -= 5f;
         }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
+            if (isHidout) return;
             Vector3 targetPosition = transform.position + transform.forward * -floorDistance;
             Vector3 rayOrigin = targetPosition + Vector3.up * floorHeight;
             Ray groundRay = new Ray(rayOrigin, Vector3.down);
             Debug.DrawRay(rayOrigin, Vector3.down * floorDistance, Color.blue, 0.5f);
             if (Physics.Raycast(groundRay, floorDistance, floorLayer))
             { transform.position = targetPosition; }
-            else Debug.Log("NO HAY SUELO");
+            currentEnergy -= 5f;
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
+            if (isHidout) return;
             transform.Rotate (0f, 90f, 0f);
         }
 
         if (Input.GetKeyDown(KeyCode.A))
         {
+            if (isHidout) return;
             transform.Rotate(0f, -90f, 0f);
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (pauseMenu.activeSelf)
+            { QuitPause(); }
+            else
+            {
+                pauseMenu.SetActive(true);
+                Time.timeScale = 0;
+            }
+        }
+    }
+    void EnterContainer(Transform container)
+    {
+        if (isHidout) return;
+        Transform camPoint = container.Find("HideCam");
+        camOriginalPos = _camera.transform.position;
+        camOriginalRot = _camera.transform.rotation;
+
+        _camera.transform.SetPositionAndRotation
+        ( camPoint.position,camPoint.rotation);
+
+        currentContainerPoint = camPoint;
+        containHideout.SetActive(true);
+        isHidout = true;
+    }
+    public void ExitContainer()
+    {
+        if (!isHidout) return;
+
+        _camera.transform.position = camOriginalPos;
+        _camera.transform.rotation = camOriginalRot;
+
+        containHideout.SetActive(false);
+        isHidout = false;
+        currentContainerPoint = null;
     }
 
     public bool IsMaskedCorrectly(Alien_Controler.AlienType alienType)
@@ -146,73 +200,94 @@ public class Player_Control : MonoBehaviour
         switch (alienType)
         {
             case Alien_Controler.AlienType.PichoAlien:
-                return _MM.maskType == Mask_Manager.MaskType.PichoMask;
+            return _MM.maskType == Mask_Manager.MaskType.PichoMask;
             case Alien_Controler.AlienType.EyeAlien:
-                return _MM.maskType == Mask_Manager.MaskType.EyeMask;
+            return _MM.maskType == Mask_Manager.MaskType.EyeMask;
             case Alien_Controler.AlienType.SullyAlien:
-                return _MM.maskType == Mask_Manager.MaskType.SullyMask;
-            default:
-                return false;
+            return _MM.maskType == Mask_Manager.MaskType.SullyMask;
+            default: return false;
         }
     }
     void DetectAliens()
     {
+        if (isHidout) return;
+
         bool detected = false;
 
-        Vector3 boxCenter = transform.position + transform.forward * (detectDistance / 2) + Vector3.up * 1f;
-        Vector3 boxHalfExtents = new Vector3(4f, 2f, detectDistance / 2); // ancho=4, alto=2, largo=detectDistance
-        Quaternion boxRotation = transform.rotation;
+        detected |= DetectBox(
+        transform.forward,new Vector3(4f, 2f, detectDistance / 2),Color.red );
 
-        // DEBUG: dibujar la caja
-        DebugDrawBox(boxCenter, boxHalfExtents, boxRotation, Color.green);
+        detected |= DetectBox(
+        -transform.forward,new Vector3(4f, 2f, detectDistance / 2),Color.red);
 
-        Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, boxRotation, alienLayer);
-        foreach (Collider hit in hits)
-        {
-            Alien_Controler alien = hit.GetComponent<Alien_Controler>();
-            if (alien != null)
-            {
-                Debug.Log("Alien detectado: " + alien.name);
-                if (!IsMaskedCorrectly(alien.alienType))
-                {
-                    susLevel += susRate * Time.deltaTime;
-                    detected = true;
-                }
-            }
-        }
+        detected |= DetectBox(
+        transform.right, new Vector3(2f, 2f, 2f),Color.red);
 
-        // Decay de sospecha
+        detected |= DetectBox(
+        -transform.right,new Vector3(2f, 2f, 2f),Color.red);
+
+        // Decay sospecha
         if (!detected && susLevel > 0f)
-            susLevel -= drainDetection * Time.deltaTime;
+        susLevel -= drainDetection * Time.deltaTime;
 
         susLevel = Mathf.Clamp(susLevel, 0, susMax);
         detectionSlider.value = susLevel;
 
         if (susLevel >= susMax) AlertAliens();
     }
+    bool DetectBox(Vector3 direction, Vector3 halfExtents, Color debugColor)
+    {
+        bool detected = false;
 
+        Vector3 center =
+        transform.position + direction * halfExtents.z +  Vector3.up * 1f;
 
+        Quaternion rotation = transform.rotation;
+
+        DebugDrawBox(center, halfExtents, rotation, debugColor);
+
+        Collider[] hits = Physics.OverlapBox(center, halfExtents, rotation, alienLayer);
+
+        foreach (Collider hit in hits)
+        {
+            Alien_Controler alien = hit.GetComponent<Alien_Controler>();
+            if (alien != null && !IsMaskedCorrectly(alien.alienType))
+            {
+                susLevel += susRate * Time.deltaTime;
+                detected = true;
+            }
+        }
+        return detected;
+    }
     void AlertAliens()
     {
-        Debug.Log("¡Has sido descubierto por los aliens!");
-        // Aquí puedes disparar eventos globales de alarma o cambiar comportamiento de enemigos
+        Time.timeScale = 0f;
+        alertPanel.SetActive(true);
     }
 
-    public void ExitContainer()
+    public void BackToShip()
     {
-        containHideout.SetActive(false);
-        isHidout = false;
+        SceneManager.LoadScene(1);
     }
-
+    public void ExitMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
     public void StartGame()
     {
-        shipLobby.SetActive(false);
+        if (_LC.listed == true)
+        {
+            Time.timeScale = 1f;
+            shipLobby.SetActive(false);
+        }
     }
-
-    public void GenerateList()
+    public void QuitPause()
     {
-        print("Phone Picked");
+        Time.timeScale = 1;
+        pauseMenu.SetActive(false);
     }
+    public void GenerateList()      
+    { _LC.SelectRandomItems(); }
 
     void DebugDrawBox(Vector3 center, Vector3 halfExtents, Quaternion rotation, Color color)
     {
