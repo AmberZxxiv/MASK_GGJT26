@@ -9,7 +9,7 @@ public class Menu_Main : MonoBehaviour
 
     void Start()
     {
-        
+        Time.timeScale = 1f;
     }
 
     void Update()
