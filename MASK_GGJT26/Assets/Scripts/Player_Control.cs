@@ -278,25 +278,22 @@ public class Player_Control : MonoBehaviour
     {
         if (_LC.listed == true)
         {
-            Time.timeScale = 1f;
-            shipLobby.SetActive(false);
-        }
-    }
-    public void QuitPause()
-    {
-        if (_LC.listed == true)
-        {
             if (spawnMaps.Length > 0)
             {
                 int randomIndex = Random.Range(0, spawnMaps.Length);
                 Transform spawn = spawnMaps[randomIndex];
-                transform.position = spawn.position;
+                transform.position = spawn.position + Vector3.up * 1.25f;
                 transform.rotation = spawn.rotation;
             }
 
             Time.timeScale = 1f;
             shipLobby.SetActive(false);
         }
+    }
+    public void QuitPause()
+    {
+        Time.timeScale = 1f;
+        pauseMenu.SetActive(false);
     }
     public void GenerateList()      
     { _LC.SelectRandomItems(); }

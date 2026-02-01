@@ -38,6 +38,9 @@ public class Mask_Manager : MonoBehaviour
     public PostProcessVolume postPoPicho;
     public PostProcessVolume postPoEye;
     public PostProcessVolume postPoSully;
+    public GameObject maskPicho;
+    public GameObject maskEye;
+    public GameObject maskSully;
     #endregion
 
 
@@ -115,8 +118,11 @@ public class Mask_Manager : MonoBehaviour
         float weight = GetPostProcessWeight();
 
         postPoPicho.weight = 0f;
+        maskPicho.SetActive(false);
         postPoEye.weight = 0f;
+        maskEye.SetActive(false);
         postPoSully.weight = 0f;
+        maskSully.SetActive(false);
 
         if (maskState == MaskState.Off)
             return;
@@ -125,12 +131,15 @@ public class Mask_Manager : MonoBehaviour
         {
             case MaskType.PichoMask:
                 postPoPicho.weight = weight;
+                maskPicho.SetActive(true);
                 break;
             case MaskType.EyeMask:
                 postPoEye.weight = weight;
+                maskEye.SetActive(true);
                 break;
             case MaskType.SullyMask:
                 postPoSully.weight = weight;
+                maskSully.SetActive(true);
                 break;
         }
     }

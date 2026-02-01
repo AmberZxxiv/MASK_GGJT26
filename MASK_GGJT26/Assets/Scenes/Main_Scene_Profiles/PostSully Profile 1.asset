@@ -52,29 +52,29 @@ MonoBehaviour:
     overrideState: 0
     value: 1
   temperature:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: -87
   tint:
     overrideState: 0
-    value: 0
+    value: 4
   colorFilter:
     overrideState: 1
-    value: {r: 0.23529412, g: 0.4509804, b: 0.47058824, a: 1}
+    value: {r: 0.47341865, g: 0.63522005, b: 0.62954277, a: 1}
   hueShift:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: -36
   saturation:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: -79
   brightness:
     overrideState: 0
     value: 0
   postExposure:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: -0.26
   contrast:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: -0
   mixerRedOutRedIn:
     overrideState: 0
     value: 100
@@ -103,11 +103,11 @@ MonoBehaviour:
     overrideState: 0
     value: 100
   lift:
-    overrideState: 0
-    value: {x: 1, y: 1, z: 1, w: 0}
+    overrideState: 1
+    value: {x: 0.16256166, y: 0.24568287, z: 1, w: -0.17443456}
   gamma:
     overrideState: 0
-    value: {x: 1, y: 1, z: 1, w: 0}
+    value: {x: 0.6858591, y: 1, z: 0.84765846, w: 0}
   gain:
     overrideState: 0
     value: {x: 1, y: 1, z: 1, w: 0}
@@ -1325,3 +1325,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings:
   - {fileID: -1102530584317964207}
+  - {fileID: 6144993168591471247}
+--- !u!114 &6144993168591471247
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65e486e4de6e5448a8fbb43dc8756a0, type: 3}
+  m_Name: Grain
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  colored:
+    overrideState: 1
+    value: 1
+  intensity:
+    overrideState: 1
+    value: 0.162
+  size:
+    overrideState: 1
+    value: 1.14
+  lumContrib:
+    overrideState: 1
+    value: 0.575
