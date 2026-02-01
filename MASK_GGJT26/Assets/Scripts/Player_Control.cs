@@ -53,6 +53,15 @@ public class Player_Control : MonoBehaviour
     public GameObject alertPanel;
     #endregion
 
+    public AudioSource AudioSource;
+    public AudioClip recolectarItem;
+    public AudioClip cogelista;
+    public AudioClip empezamision;
+    public AudioClip botones;
+    public AudioClip ambiente;
+    public AudioClip sosp;
+
+
     void Awake()// singleton sin superponer
     {
         if (instance == null) { instance = this; }
@@ -72,6 +81,15 @@ public class Player_Control : MonoBehaviour
         baterySlider.value = currentEnergy;
         detectionSlider.maxValue = susMax;
         detectionSlider.value = susLevel;
+    }
+    public void sonidolista()
+    {
+        AudioSource.PlayOneShot(cogelista);
+    }
+   
+    public void Boton()
+    {
+        AudioSource.PlayOneShot(botones);
     }
 
     void Update()
@@ -102,6 +120,7 @@ public class Player_Control : MonoBehaviour
                     Loot_Item loot = hit.collider.GetComponent<Loot_Item>();
                     if (loot != null)
                     {
+                        AudioSource.PlayOneShot(recolectarItem);
                         Loot_Control.instance.CollectItem(loot.index, hit.collider.gameObject);
                     }
                 }
@@ -122,7 +141,10 @@ public class Player_Control : MonoBehaviour
         currentEnergy += energyDelta * Time.deltaTime;
         currentEnergy = Mathf.Clamp(currentEnergy, 0, maxEnergy);
         baterySlider.value = currentEnergy;
-
+        if (susLevel == 30f)
+        {
+            AudioSource.PlayOneShot(sosp);
+        }
         if (Input.GetKeyDown(KeyCode.W))
         {
             if (isHidout) return;
@@ -233,7 +255,7 @@ public class Player_Control : MonoBehaviour
 
         susLevel = Mathf.Clamp(susLevel, 0, susMax);
         detectionSlider.value = susLevel;
-
+        
         if (susLevel >= susMax) AlertAliens();
     }
     bool DetectBox(Vector3 direction, Vector3 halfExtents, Color debugColor)
@@ -278,6 +300,8 @@ public class Player_Control : MonoBehaviour
     {
         if (_LC.listed == true)
         {
+            shipLobby.SetActive(false);
+            Time.timeScale = 1f;
             if (spawnMaps.Length > 0)
             {
                 int randomIndex = Random.Range(0, spawnMaps.Length);
@@ -285,9 +309,8 @@ public class Player_Control : MonoBehaviour
                 transform.position = spawn.position + Vector3.up * 1.25f;
                 transform.rotation = spawn.rotation;
             }
-
-            Time.timeScale = 1f;
-            shipLobby.SetActive(false);
+            AudioSource.PlayOneShot(empezamision);
+            AudioSource.PlayOneShot(ambiente);
         }
     }
     public void QuitPause()

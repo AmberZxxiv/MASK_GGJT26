@@ -13,6 +13,8 @@ public class Mask_Manager : MonoBehaviour
 
     public MaskType maskType;
     public MaskState maskState;
+    public AudioSource auidiosorcee;
+    public AudioClip bateriabaja;
     public enum MaskType
     {
         HumanMask,
@@ -42,7 +44,6 @@ public class Mask_Manager : MonoBehaviour
     public GameObject maskEye;
     public GameObject maskSully;
     #endregion
-
 
 
     [Header("Mask Energy State")]
@@ -95,9 +96,12 @@ public class Mask_Manager : MonoBehaviour
         float percent = GetBatteryPercent();
 
         if (percent <= offThreshold)
-        maskState = MaskState.Off;
+            maskState = MaskState.Off;
         else if (percent <= lowThreshold)
-        maskState = MaskState.Low;
+        {
+            maskState = MaskState.Low;
+            auidiosorcee.PlayOneShot(bateriabaja);
+        }
         else
         maskState = MaskState.Strong;
     }

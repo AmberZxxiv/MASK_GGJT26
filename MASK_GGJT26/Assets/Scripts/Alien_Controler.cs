@@ -67,6 +67,7 @@ public class Alien_Controler : MonoBehaviour
         {
             // Sumar dirección (hacia adelante o hacia atrás)
             _currentPoint += _direction;
+           
 
             // Cambiar dirección si llegamos al principio o al final
             if (_currentPoint >= route.Length)
@@ -80,6 +81,7 @@ public class Alien_Controler : MonoBehaviour
                 _direction = 1; // Cambiar dirección a avanzar
             }
 
+           
             // Cambiar el parámetro "IsMovingBackward" según la dirección
             _animator.SetBool("Espaldas", _direction < 0);  // Si es negativo, es retrocediendo
         }
