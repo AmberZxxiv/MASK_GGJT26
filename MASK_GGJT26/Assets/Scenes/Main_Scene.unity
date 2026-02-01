@@ -4989,9 +4989,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'You did great
+  m_text: 'You did great,
 
-    Juanker!'
+    junker'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -14123,15 +14123,15 @@ MonoBehaviour:
   pauseMenu: {fileID: 968921087}
   victoryMenu: {fileID: 712589271}
   baterySlider: {fileID: 1886225139}
-  maxEnergy: 75
+  maxEnergy: 100
   currentEnergy: 0
-  drainRate: 2
-  chargeRate: 5
-  humanMaskCharge: 1
+  drainRate: 5
+  chargeRate: 10
+  humanMaskCharge: 2
   containHideout: {fileID: 1845903924}
   isHidout: 0
   detectionSlider: {fileID: 1058164724}
-  susMax: 75
+  susMax: 50
   susLevel: 0
   susRate: 5
   drainDetection: 5
