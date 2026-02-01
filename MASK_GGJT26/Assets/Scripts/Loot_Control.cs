@@ -48,7 +48,12 @@ public class Loot_Control : MonoBehaviour
     }
     public void SelectRandomItems()
     {
+        ClearSpawnedItems();  
+
         selectedIndexes.Clear();
+        collectedCount = 0;
+        allCollected = false;
+
         List<int> used = new List<int>();
 
         while (selectedIndexes.Count < itemsCounter)
@@ -91,7 +96,18 @@ public class Loot_Control : MonoBehaviour
             else uiSlots[i].gameObject.SetActive(false);
         }
     }
-
+    void ClearSpawnedItems()
+    {
+        foreach (var zoneList in spawnedByZone.Values)
+        {
+            foreach (GameObject item in zoneList)
+            {
+                if (item != null)
+                    Destroy(item);
+            }
+        }
+        spawnedByZone.Clear();
+    }
     void SpawnItems()
     {
         int[] indexesArray = selectedIndexes.ToArray();
@@ -103,8 +119,6 @@ public class Loot_Control : MonoBehaviour
 
             if (!spawnedByZone.ContainsKey(zone))
                 spawnedByZone.Add(zone, new List<GameObject>());
-            else
-                spawnedByZone[zone].Clear();
 
             for (int i = 0; i < indexesArray.Length; i++)
             {
